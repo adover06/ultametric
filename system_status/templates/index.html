@@ -47,7 +47,8 @@
               <div class="history" aria-label="24 hour status">
                 {% for point in row.history %}
                   {% set title = ("Up" if point.state == "up" else ("Down" if point.state == "down" else "No Data")) ~ " @ " ~ point.label %}
-                  <span class="cell {{ point.state }}" title="{{ title }}"></span>
+                  {% set symbol = "✅" if point.state == "up" else ("❌" if point.state == "down" else "⚠️") %}
+                  <span class="cell {{ point.state }}" title="{{ title }}">{{ symbol }}</span>
                   {% if loop.index % 4 == 0 and not loop.last %}
                     <span class="divider" aria-hidden="true"></span>
                   {% endif %}

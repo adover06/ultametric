@@ -10,6 +10,17 @@
   --no-data: #9ca3af;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1220;
+    --surface: #111827;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --border: #243244;
+    --no-data: #6b7280;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -69,6 +80,7 @@ td {
 th {
   font-size: 0.875rem;
   color: var(--muted);
+  background: color-mix(in srgb, var(--surface) 85%, var(--bg));
 }
 
 .history-head {
@@ -107,25 +119,27 @@ th {
 }
 
 .cell {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  font-size: 13px;
+  text-align: center;
   display: inline-block;
   cursor: help;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
 }
 
 .cell.up {
-  background: var(--up);
+  background: transparent;
 }
 
 .cell.down {
-  background: var(--down);
+  background: transparent;
 }
 
 .cell.no_data,
 .cell.no-data {
-  background: var(--no-data);
+  background: transparent;
 }
 
 .divider {
