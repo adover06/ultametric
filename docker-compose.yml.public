@@ -1,0 +1,67 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    expose:
+      - "9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - proxy
+
+  node-exporter:  
+    image: prom/node-exporter
+    container_name: node-exporter
+    restart: unless-stopped
+    pid: host
+    network_mode: host
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    expose:
+      - "8080"
+    networks:
+      - proxy
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    volumes:
+      - grafana_data:/var/lib/grafana
+    expose:
+      - "3000"
+    environment:
+      GF_SERVER_ROOT_URL: "https://grafana.home.arpa"
+      GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
+      GF_AUTH_GENERIC_OAUTH_NAME: "Authentik"
+      GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: "true"
+      GF_AUTH_GENERIC_OAUTH_SCOPES: "openid profile email"
+      GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://auth.home.arpa/application/o/authorize/"
+      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "http://authentik-server:9000/application/o/token/"
+      GF_AUTH_GENERIC_OAUTH_API_URL: "http://authentik-server:9000/application/o/userinfo/"
+      GF_AUTH_GENERIC_OAUTH_LOGIN_ATTRIBUTE_PATH: "preferred_username"
+      GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_PATH: "email"
+      GF_AUTH_GENERIC_OAUTH_NAME_ATTRIBUTE_PATH: "name"
+      GF_AUTH_OAUTH_AUTO_LOGIN: "true"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "X8yFEGQ2BpMWDovX1ZGwxi2LfhX4TeoDXpFxACRT"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "jgrngAUb4SPqQx9ATLIF6BMCX0MihRR2FVovUrRHqI2laFGyfuECsPyUnUMMhg9vH0UY5ZKnrWxqi1EyCx5AGXWj0lPKv8bhZyzEU19LoSvOo4VYh2a3IWXCjXvQT2fO"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  grafana_data:
