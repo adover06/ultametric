@@ -23,6 +23,18 @@ class ServiceStatus:
     history: list[str]
 
 
+def normalize_history(values: list[Any], width: int = 24) -> list[str]:
+    points: list[str] = []
+    for _, value in values:
+        points.append("up" if str(value) == "1" else "down")
+
+    if len(points) >= width:
+        return points[-width:]
+
+    padding = ["no_data"] * (width - len(points))
+    return padding + points
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="0.0.0.0")
@@ -101,15 +113,13 @@ def build_status_rows() -> list[ServiceStatus]:
                         query=query,
                         status="NO DATA",
                         detail="No matching time series",
-                        history=[],
+                        history=["no_data"] * 24,
                     )
                 )
                 continue
 
             values = result[0].get("values", [])
-            history = []
-            for _, value in values:
-                history.append("up" if str(value) == "1" else "down")
+            history = normalize_history(values)
 
             last_value = values[-1][1] if values else "0"
             is_up = str(last_value) == "1"
@@ -131,7 +141,7 @@ def build_status_rows() -> list[ServiceStatus]:
                     query=query,
                     status="ERROR",
                     detail=f"Prometheus request failed: {exc}",
-                    history=[],
+                    history=["no_data"] * 24,
                 )
             )
 

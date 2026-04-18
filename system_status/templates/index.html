@@ -10,6 +10,11 @@
     <main class="container">
       <h1>System Status</h1>
       <p class="meta">Last refreshed: {{ rendered_at }}</p>
+      <div class="legend">
+        <span><span class="cell up"></span> Up</span>
+        <span><span class="cell down"></span> Down</span>
+        <span><span class="cell no-data"></span> No Data</span>
+      </div>
 
       <table>
         <thead>
@@ -17,7 +22,11 @@
             <th>Service</th>
             <th>Status</th>
             <th>Detail</th>
-            <th>Past 24h</th>
+            <th class="history-head">
+              <span>Prev Day</span>
+              <span>History of past 24 Hours</span>
+              <span>Now</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -34,14 +43,16 @@
               {% endif %}
             </td>
             <td class="detail">{{ row.detail }}</td>
-            <td class="history">
-              {% for point in row.history %}
-                {% if point == "up" %}
-                  <span class="dot up" title="up"></span>
-                {% else %}
-                  <span class="dot down" title="down"></span>
-                {% endif %}
-              {% endfor %}
+            <td>
+              <div class="history" aria-label="24 hour status">
+                {% for point in row.history %}
+                  {% set title = "Up" if point == "up" else ("Down" if point == "down" else "No Data") %}
+                  <span class="cell {{ point }}" title="{{ title }}"></span>
+                  {% if loop.index % 4 == 0 and not loop.last %}
+                    <span class="divider" aria-hidden="true"></span>
+                  {% endif %}
+                {% endfor %}
+              </div>
             </td>
           </tr>
           {% endfor %}
