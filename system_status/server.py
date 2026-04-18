@@ -20,18 +20,32 @@ class ServiceStatus:
     query: str
     status: str
     detail: str
-    history: list[str]
+    history: list[dict[str, str]]
 
 
-def normalize_history(values: list[Any], width: int = 24) -> list[str]:
-    points: list[str] = []
-    for _, value in values:
-        points.append("up" if str(value) == "1" else "down")
+def normalize_history(values: list[Any], width: int = 24) -> list[dict[str, str]]:
+    points: list[dict[str, str]] = []
+    for epoch, value in values:
+        try:
+            label = (
+                datetime.datetime.fromtimestamp(float(epoch), tz=datetime.timezone.utc)
+                .astimezone()
+                .strftime("%Y-%m-%d %H:%M")
+            )
+        except (TypeError, ValueError, OSError):
+            label = "Unknown time"
+
+        points.append(
+            {
+                "state": "up" if str(value) == "1" else "down",
+                "label": label,
+            }
+        )
 
     if len(points) >= width:
         return points[-width:]
 
-    padding = ["no_data"] * (width - len(points))
+    padding = [{"state": "no_data", "label": "No data"}] * (width - len(points))
     return padding + points
 
 
@@ -113,7 +127,7 @@ def build_status_rows() -> list[ServiceStatus]:
                         query=query,
                         status="NO DATA",
                         detail="No matching time series",
-                        history=["no_data"] * 24,
+                        history=[{"state": "no_data", "label": "No data"}] * 24,
                     )
                 )
                 continue
@@ -141,7 +155,7 @@ def build_status_rows() -> list[ServiceStatus]:
                     query=query,
                     status="ERROR",
                     detail=f"Prometheus request failed: {exc}",
-                    history=["no_data"] * 24,
+                    history=[{"state": "no_data", "label": "No data"}] * 24,
                 )
             )
 

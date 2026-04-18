@@ -111,6 +111,8 @@ th {
   height: 12px;
   border-radius: 2px;
   display: inline-block;
+  cursor: help;
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .cell.up {
