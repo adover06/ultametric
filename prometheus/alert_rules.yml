@@ -1,0 +1,48 @@
+groups:
+  - name: host-alerts
+    interval: 30s
+    rules:
+      - alert: HostDown
+        expr: up{job="node"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Host node exporter is down
+          description: Prometheus cannot scrape node exporter for more than 2 minutes.
+
+      - alert: DockerExporterDown
+        expr: up{job="cadvisor"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: cAdvisor exporter is down
+          description: Prometheus cannot scrape cAdvisor for more than 2 minutes.
+
+      - alert: HostHighCPU
+        expr: (100 - avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Host CPU usage is high
+          description: Host CPU usage is above 90 percent for 10 minutes.
+
+      - alert: HostLowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay"}) < 0.10
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: Host disk space is low
+          description: Root filesystem free space is below 10 percent for 10 minutes.
+
+      - alert: HostLowMemory
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Host memory is low
+          description: Available host memory is below 10 percent for 10 minutes.

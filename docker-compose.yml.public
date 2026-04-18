@@ -4,11 +4,34 @@ services:
     container_name: prometheus
     restart: unless-stopped
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
     expose:
       - "9090"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      - proxy
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: alertmanager
+    restart: unless-stopped
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+    expose:
+      - "9093"
+    networks:
+      - proxy
+
+  discord-alerts:
+    image: benjojo/alertmanager-discord
+    container_name: discord-alerts
+    restart: unless-stopped
+    environment:
+      DISCORD_WEBHOOK: ${DISCORD_WEBHOOK_URL}
     networks:
       - proxy
 
@@ -39,6 +62,8 @@ services:
     restart: unless-stopped
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     expose:
       - "3000"
     environment:
@@ -54,8 +79,8 @@ services:
       GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_PATH: "email"
       GF_AUTH_GENERIC_OAUTH_NAME_ATTRIBUTE_PATH: "name"
       GF_AUTH_OAUTH_AUTO_LOGIN: "true"
-      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "X8yFEGQ2BpMWDovX1ZGwxi2LfhX4TeoDXpFxACRT"
-      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "jgrngAUb4SPqQx9ATLIF6BMCX0MihRR2FVovUrRHqI2laFGyfuECsPyUnUMMhg9vH0UY5ZKnrWxqi1EyCx5AGXWj0lPKv8bhZyzEU19LoSvOo4VYh2a3IWXCjXvQT2fO"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: ${GF_AUTH_GENERIC_OAUTH_CLIENT_ID}
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: ${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
     networks:
       - proxy
 
