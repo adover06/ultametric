@@ -62,8 +62,6 @@ services:
     restart: unless-stopped
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     expose:
       - "3000"
     environment:
@@ -81,6 +79,22 @@ services:
       GF_AUTH_OAUTH_AUTO_LOGIN: "true"
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID: ${GF_AUTH_GENERIC_OAUTH_CLIENT_ID}
       GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: ${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
+    networks:
+      - proxy
+
+  system-status:
+    container_name: system-status
+    restart: unless-stopped
+    build:
+      context: ./system_status
+      dockerfile: Dockerfile
+    command:
+      - --target=http://prometheus:9090
+      - --config=/app/services.yml
+    ports:
+      - "9110:9100"
+    volumes:
+      - ./system_status/services.yml:/app/services.yml:ro
     networks:
       - proxy
 

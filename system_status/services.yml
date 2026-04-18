@@ -1,0 +1,9 @@
+services:
+  - name: Host Node Exporter
+    query: up{job="node"}
+
+  - name: cAdvisor
+    query: up{job="cadvisor"}
+
+  - name: Prometheus
+    query: up{job="prometheus"}

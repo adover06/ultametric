@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>System Status</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <main class="container">
+      <h1>System Status</h1>
+      <p class="meta">Last refreshed: {{ rendered_at }}</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Status</th>
+            <th>Detail</th>
+            <th>Past 24h</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td>{{ row.name }}</td>
+            <td>
+              {% if row.status == "UP" %}
+                <span class="badge up">UP</span>
+              {% elif row.status == "DOWN" %}
+                <span class="badge down">DOWN</span>
+              {% else %}
+                <span class="badge unknown">{{ row.status }}</span>
+              {% endif %}
+            </td>
+            <td class="detail">{{ row.detail }}</td>
+            <td class="history">
+              {% for point in row.history %}
+                {% if point == "up" %}
+                  <span class="dot up" title="up"></span>
+                {% else %}
+                  <span class="dot down" title="down"></span>
+                {% endif %}
+              {% endfor %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main>
+  </body>
+</html>
