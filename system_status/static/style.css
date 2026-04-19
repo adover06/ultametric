@@ -111,6 +111,46 @@ th {
   font-size: 0.85rem;
 }
 
+.group-parent td {
+  font-weight: 600;
+}
+
+.toggle {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 90%, var(--bg));
+  color: var(--text);
+  border-radius: 4px;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.child-row td {
+  background: color-mix(in srgb, var(--surface) 94%, var(--bg));
+}
+
+.child-name {
+  padding-left: 2rem;
+  position: relative;
+}
+
+.child-name::before {
+  content: "";
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  width: 0.6rem;
+  height: 1px;
+  background: var(--muted);
+}
+
+.is-hidden {
+  display: none;
+}
+
 .history {
   display: grid;
   grid-template-columns: repeat(29, 14px);

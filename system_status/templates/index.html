@@ -31,8 +31,13 @@
         </thead>
         <tbody>
           {% for row in rows %}
-          <tr>
-            <td>{{ row.name }}</td>
+          <tr class="{% if row.children %}group-parent{% endif %}">
+            <td>
+              {% if row.children %}
+                <button class="toggle" type="button" data-group="{{ row.group_id }}" aria-expanded="false" aria-controls="{{ row.group_id }}">▶</button>
+              {% endif %}
+              {{ row.name }}
+            </td>
             <td>
               {% if row.status == "UP" %}
                 <span class="badge up">UP</span>
@@ -56,9 +61,53 @@
               </div>
             </td>
           </tr>
+
+          {% if row.children %}
+            {% for child in row.children %}
+            <tr id="{{ row.group_id }}" class="child-row is-hidden" data-parent="{{ row.group_id }}">
+              <td class="child-name">{{ child.name }}</td>
+              <td>
+                {% if child.status == "UP" %}
+                  <span class="badge up">UP</span>
+                {% elif child.status == "DOWN" %}
+                  <span class="badge down">DOWN</span>
+                {% else %}
+                  <span class="badge unknown">{{ child.status }}</span>
+                {% endif %}
+              </td>
+              <td class="detail">{{ child.detail }}</td>
+              <td>
+                <div class="history" aria-label="24 hour status">
+                  {% for point in child.history %}
+                    {% set title = ("Up" if point.state == "up" else ("Down" if point.state == "down" else "No Data")) ~ " @ " ~ point.label %}
+                    {% set symbol = "✅" if point.state == "up" else ("❌" if point.state == "down" else "⚠️") %}
+                    <span class="cell {{ point.state }}" title="{{ title }}">{{ symbol }}</span>
+                    {% if loop.index % 4 == 0 and not loop.last %}
+                      <span class="divider" aria-hidden="true"></span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% endif %}
           {% endfor %}
         </tbody>
       </table>
     </main>
+    <script>
+      for (const button of document.querySelectorAll('.toggle')) {
+        button.addEventListener('click', () => {
+          const groupId = button.dataset.group;
+          const rows = document.querySelectorAll(`tr[data-parent="${groupId}"]`);
+          const isOpen = button.getAttribute('aria-expanded') === 'true';
+          for (const row of rows) {
+            row.classList.toggle('is-hidden', isOpen);
+          }
+          button.setAttribute('aria-expanded', String(!isOpen));
+          button.textContent = isOpen ? '▶' : '▼';
+        });
+      }
+    </script>
   </body>
 </html>
