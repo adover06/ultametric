@@ -1,44 +1,34 @@
 # System Status
 
-Small FastAPI service that renders a simple status page from Prometheus `up` metrics.
+Simple FastAPI status page backed by Prometheus queries.
 
-## Configure displayed services
+## Pipeline (end to end)
 
-Edit `system_status/services.yml`.
+1. A service exposes health/metrics data (`/metrics`) directly, or via an exporter (for example cAdvisor, blackbox, postgres-exporter).
+2. Prometheus scrapes that target based on `prometheus/prometheus.yml` (`scrape_configs`).
+3. Prometheus stores those time series (for example `up`, `probe_success`, `container_last_seen`).
+4. `system_status/services.yml` defines which PromQL query each row (or child row) should use.
+5. `system_status/server.py` runs each query against Prometheus (`/api/v1/query_range`) for the last 24 hours.
+6. The app converts query results into UP/DOWN/NO DATA + history.
+7. `system_status/templates/index.html` renders the final status page.
 
-Each entry needs:
+## What to edit when adding a new service
 
-- `name`: label shown in UI
-- `query`: PromQL expression that returns a 0/1 style series
+1. Make sure the service has a metric source (native `/metrics` or an exporter).
+2. Add/confirm a scrape job in `prometheus/prometheus.yml`.
+3. Add a row in `system_status/services.yml` with a query that returns 0/1 style status.
+4. Restart affected containers:
 
-Example:
-
-```yaml
-services:
-  - name: Authentik
-    query: up{job="authentik"}
-
-  - name: Traefik
-    query: up{job="traefik"}
+```bash
+docker compose restart prometheus system-status
 ```
 
 ## Run
-
-From repo root:
 
 ```bash
 docker compose up -d --build system-status
 ```
 
-Open `http://localhost:9110`.
+Open: `http://localhost:9110`
 
-Append `?json=1` to get JSON output.
-
-## How to add metrics to services in the future
-
-1. Expose a `/metrics` endpoint from the service (native Prometheus client libraries are easiest).
-2. Add a Prometheus scrape job in `prometheus/prometheus.yml` under `scrape_configs`.
-3. Add a status entry in `system_status/services.yml` with an `up{job="..."}` query.
-4. Restart Prometheus and system-status.
-
-For services that do not support Prometheus, run an exporter (blackbox, postgres-exporter, redis-exporter, etc.) and scrape that exporter.
+JSON mode: `http://localhost:9110/?json=1`
