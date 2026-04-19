@@ -9,52 +9,52 @@ services:
     query: up{job="cadvisor",instance="cadvisor:8080"}
 
   - name: Alertmanager Container
-    query: max((time() - container_last_seen{name=~"/alertmanager"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="alertmanager"}) < bool 120 or (time() - container_last_seen{name=~".*alertmanager.*"}) < bool 120) or on() vector(0)
 
   - name: Discord Alerts Container
-    query: max((time() - container_last_seen{name=~"/discord-alerts"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="discord-alerts"}) < bool 120 or (time() - container_last_seen{name=~".*discord-alerts.*"}) < bool 120) or on() vector(0)
 
   - name: Grafana Container
-    query: max((time() - container_last_seen{name=~"/grafana"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="grafana"}) < bool 120 or (time() - container_last_seen{name=~".*grafana.*"}) < bool 120) or on() vector(0)
 
   - name: Prometheus Container
-    query: max((time() - container_last_seen{name=~"/prometheus"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="prometheus"}) < bool 120 or (time() - container_last_seen{name=~".*prometheus.*"}) < bool 120) or on() vector(0)
 
   - name: System Status Container
-    query: max((time() - container_last_seen{name=~"/system-status"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="system-status"}) < bool 120 or (time() - container_last_seen{name=~".*system-status.*"}) < bool 120) or on() vector(0)
 
   - name: Node Exporter Container
-    query: max((time() - container_last_seen{name=~"/node-exporter"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="node-exporter"}) < bool 120 or (time() - container_last_seen{name=~".*node-exporter.*"}) < bool 120) or on() vector(0)
 
   - name: cAdvisor Container
-    query: max((time() - container_last_seen{name=~"/cadvisor"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="cadvisor"}) < bool 120 or (time() - container_last_seen{name=~".*cadvisor.*"}) < bool 120) or on() vector(0)
 
   - name: Caddy Container
-    query: max((time() - container_last_seen{name=~"/caddy"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="caddy"}) < bool 120 or (time() - container_last_seen{name=~".*caddy.*"}) < bool 120) or on() vector(0)
 
   - name: Authentik Server Container
-    query: max((time() - container_last_seen{name=~"/authentik-server"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="authentik-server"}) < bool 120 or (time() - container_last_seen{name=~".*authentik-server.*"}) < bool 120) or on() vector(0)
 
   - name: Authentik Worker Container
-    query: max((time() - container_last_seen{name=~"/authentik-worker"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="authentik-worker"}) < bool 120 or (time() - container_last_seen{name=~".*authentik-worker.*"}) < bool 120) or on() vector(0)
 
   - name: Authentik DB Container
-    query: max((time() - container_last_seen{name=~"/authentik-db"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="authentik-db"}) < bool 120 or (time() - container_last_seen{name=~".*authentik-db.*"}) < bool 120) or on() vector(0)
 
   - name: Authentik Redis Container
-    query: max((time() - container_last_seen{name=~"/authentik-redis"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="authentik-redis"}) < bool 120 or (time() - container_last_seen{name=~".*authentik-redis.*"}) < bool 120) or on() vector(0)
 
   - name: PairDrop Container
-    query: max((time() - container_last_seen{name=~"/pairdrop"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="pairdrop"}) < bool 120 or (time() - container_last_seen{name=~".*pairdrop.*"}) < bool 120) or on() vector(0)
 
   - name: Vaultwarden Container
-    query: max((time() - container_last_seen{name=~"/vaultwarden"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="vaultwarden"}) < bool 120 or (time() - container_last_seen{name=~".*vaultwarden.*"}) < bool 120) or on() vector(0)
 
   - name: Personal Portfolio Next.js Container
-    query: max((time() - container_last_seen{name=~"/personalportfolio-nextjs-1"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="nextjs"}) < bool 120 or (time() - container_last_seen{name=~".*personalportfolio-nextjs-1.*"}) < bool 120) or on() vector(0)
 
   - name: Personal Portfolio NGINX Container
-    query: max((time() - container_last_seen{name=~"/personalportfolio-nginx-1"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="nginx"}) < bool 120 or (time() - container_last_seen{name=~".*personalportfolio-nginx-1.*"}) < bool 120) or on() vector(0)
 
   - name: Portainer Container
-    query: max((time() - container_last_seen{name=~"/portainer"}) < bool 120) or on() vector(0)
+    query: max((time() - container_last_seen{container_label_com_docker_compose_service="portainer"}) < bool 120 or (time() - container_last_seen{name=~".*portainer.*"}) < bool 120) or on() vector(0)
