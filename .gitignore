@@ -1,3 +1,4 @@
 .env
 docker-compose.yml.old
 .DS_Store
+system_status/venv
