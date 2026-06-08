@@ -60,6 +60,8 @@ services:
     image: prom/blackbox-exporter
     container_name: blackbox-exporter
     restart: unless-stopped
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
     expose:
       - "9115"
     networks:

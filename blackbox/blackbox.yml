@@ -1,0 +1,14 @@
+modules:
+  # Standard HTTP(S) probe — verifies a 2xx/3xx response.
+  http_2xx:
+    prober: http
+    http:
+      fail_if_not_ssl: false
+
+  # Same, but skips TLS cert verification — for internal probes where the
+  # endpoint serves a cert for the public domain, not its container name.
+  http_2xx_insecure:
+    prober: http
+    http:
+      tls_config:
+        insecure_skip_verify: true
