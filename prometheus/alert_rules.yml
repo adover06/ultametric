@@ -46,3 +46,15 @@ groups:
         annotations:
           summary: Host memory is low
           description: Available host memory is below 10 percent for 10 minutes.
+
+  - name: service-alerts
+    interval: 30s
+    rules:
+      - alert: PortfolioDown
+        expr: probe_success{instance="https://nginx:444"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Portfolio site is not responding
+          description: Blackbox probe to https://nginx:444 has failed for more than 2 minutes.
