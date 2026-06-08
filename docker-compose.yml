@@ -56,6 +56,15 @@ services:
     networks:
       - proxy
 
+  blackbox-exporter:
+    image: prom/blackbox-exporter
+    container_name: blackbox-exporter
+    restart: unless-stopped
+    expose:
+      - "9115"
+    networks:
+      - proxy
+
   grafana:
     image: grafana/grafana
     container_name: grafana
