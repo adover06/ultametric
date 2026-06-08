@@ -1,25 +1,10 @@
 groups:
+  # ---------------------------------------------------------------------------
+  # Host resource health (node-exporter)
+  # ---------------------------------------------------------------------------
   - name: host-alerts
     interval: 30s
     rules:
-      - alert: HostDown
-        expr: up{job="node"} == 0
-        for: 2m
-        labels:
-          severity: critical
-        annotations:
-          summary: Host node exporter is down
-          description: Prometheus cannot scrape node exporter for more than 2 minutes.
-
-      - alert: DockerExporterDown
-        expr: up{job="cadvisor"} == 0
-        for: 2m
-        labels:
-          severity: warning
-        annotations:
-          summary: cAdvisor exporter is down
-          description: Prometheus cannot scrape cAdvisor for more than 2 minutes.
-
       - alert: HostHighCPU
         expr: (100 - avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
         for: 10m
@@ -28,15 +13,6 @@ groups:
         annotations:
           summary: Host CPU usage is high
           description: Host CPU usage is above 90 percent for 10 minutes.
-
-      - alert: HostLowDiskSpace
-        expr: (node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay"}) < 0.10
-        for: 10m
-        labels:
-          severity: critical
-        annotations:
-          summary: Host disk space is low
-          description: Root filesystem free space is below 10 percent for 10 minutes.
 
       - alert: HostLowMemory
         expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.10
@@ -47,14 +23,73 @@ groups:
           summary: Host memory is low
           description: Available host memory is below 10 percent for 10 minutes.
 
-  - name: service-alerts
+      - alert: HostLowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay"}) < 0.10
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: Host disk space is low
+          description: Root filesystem free space is below 10 percent for 10 minutes.
+
+      # Predictive: catches a slow leak ~a day before it hits the wall.
+      - alert: DiskWillFill
+        expr: predict_linear(node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay"}[6h], 24*3600) < 0
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: Root disk projected to fill within 24h
+          description: Based on the last 6h trend, the root filesystem will run out of space within a day.
+
+  # ---------------------------------------------------------------------------
+  # Availability — generic, cover every current and future target
+  # ---------------------------------------------------------------------------
+  - name: availability
     interval: 30s
     rules:
-      - alert: PortfolioDown
-        expr: probe_success{instance="https://nginx:444"} == 0
+      # Any scrape target Prometheus can't reach (node, cadvisor, blackbox, etc.)
+      - alert: TargetDown
+        expr: up == 0
         for: 2m
         labels:
           severity: critical
         annotations:
-          summary: Portfolio site is not responding
-          description: Blackbox probe to https://nginx:444 has failed for more than 2 minutes.
+          summary: "Scrape target down: {{ $labels.job }} / {{ $labels.instance }}"
+          description: Prometheus has failed to scrape this target for more than 2 minutes.
+
+      # Any blackbox-probed service returning a failed HTTP probe.
+      - alert: ServiceDown
+        expr: probe_success == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service not responding: {{ $labels.instance }}"
+          description: Blackbox HTTP probe to this service has failed for more than 2 minutes.
+
+      # TLS cert within 7 days of expiry (classic silent outage).
+      - alert: CertExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 7
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "TLS cert for {{ $labels.instance }} expires in <7 days"
+          description: Renew the certificate before it expires to avoid an outage.
+
+  # ---------------------------------------------------------------------------
+  # Container health (cadvisor)
+  # ---------------------------------------------------------------------------
+  - name: container-alerts
+    interval: 30s
+    rules:
+      # A container restarting repeatedly = crashloop.
+      - alert: ContainerRestarting
+        expr: changes(container_start_time_seconds{name!=""}[15m]) > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} is crash-looping"
+          description: "{{ $labels.name }} has restarted more than 3 times in 15 minutes."
