@@ -25,10 +25,10 @@ scrape_configs:
   - job_name: 'blackbox'
     metrics_path: /probe
     params:
-      module: [http_2xx_insecure]
+      module: [http_2xx]
     static_configs:
       - targets:
-          - 'https://nginx:444'   # internal reverse proxy (Cloudflare points here)
+          - 'http://nginx:444'   # nginx serves plain HTTP on 444 (TLS is terminated at Cloudflare's edge)
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target

@@ -52,7 +52,7 @@ services:
   - name: Personal Portfolio Stack
     children:
       - name: Portfolio HTTP Reachable (blackbox)
-        query: probe_success{instance="https://nginx:444"}
+        query: probe_success{instance="http://nginx:444"}
       - name: Personal Portfolio Next.js Container
         query: max((time() - container_last_seen{container_label_com_docker_compose_service="nextjs"}) < bool 120 or (time() - container_last_seen{name=~".*personalportfolio-nextjs-1.*"}) < bool 120) or on() vector(0)
       - name: Personal Portfolio NGINX Container
