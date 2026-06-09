@@ -35,7 +35,22 @@ services:
     networks:
       - proxy
 
-  node-exporter:  
+  github-receiver:
+    image: measurementlab/alertmanager-github-receiver:latest
+    container_name: github-receiver
+    restart: unless-stopped
+    # Token is interpolated from .env at compose-time so it stays out of the repo.
+    command:
+      - -authtoken=${GITHUB_AUTH_TOKEN}
+      - -org=adover06
+      - -repo=ultametric          # default repo for issues; override per-alert with a `repo` label
+      - -enable-auto-close        # closes the issue when the alert resolves
+    expose:
+      - "9393"
+    networks:
+      - proxy
+
+  node-exporter:
     image: prom/node-exporter
     container_name: node-exporter
     restart: unless-stopped

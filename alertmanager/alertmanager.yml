@@ -1,12 +1,23 @@
 route:
-  receiver: discord_webhook
+  receiver: discord_webhook          # default: everything goes to Discord
   group_by: [alertname, job]
   group_wait: 10s
   group_interval: 30s
   repeat_interval: 4h
+  routes:
+    - matchers:
+        - severity="critical"        # criticals ALSO open a GitHub issue
+      receiver: discord_and_github
 
 receivers:
   - name: discord_webhook
     webhook_configs:
       - url: http://discord-alerts:9094
+        send_resolved: true
+
+  - name: discord_and_github
+    webhook_configs:
+      - url: http://discord-alerts:9094
+        send_resolved: true
+      - url: http://github-receiver:9393/v1/receiver   # path matters!
         send_resolved: true
