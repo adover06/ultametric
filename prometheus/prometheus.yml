@@ -27,8 +27,12 @@ scrape_configs:
     params:
       module: [http_2xx]
     static_configs:
-      - targets:
-          - 'http://nginx:444'   # nginx serves plain HTTP on 444 (TLS is terminated at Cloudflare's edge)
+      - targets: ['http://nginx:444']             # internal: nginx + app behind it
+        labels: { tier: internal }
+      - targets:                                  # public: full path through Cloudflare
+          - 'https://andrewdover.com'
+          - 'https://www.andrewdover.com'
+        labels: { tier: public }
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -36,3 +40,7 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: blackbox-exporter:9115
+
+  - job_name: 'cloudflared'
+    static_configs:
+      - targets: ['cloudflare-tunnel:2000']

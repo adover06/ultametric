@@ -78,6 +78,18 @@ groups:
           summary: "TLS cert for {{ $labels.instance }} expires in <7 days"
           description: Renew the certificate before it expires to avoid an outage.
 
+      # Cloudflare tunnel running but disconnected from the edge (0 HA connections).
+      # This is the ROOT CAUSE when the public site is unreachable — it inhibits
+      # the downstream ServiceDown{tier="public"} alerts (see alertmanager.yml).
+      - alert: TunnelDown
+        expr: cloudflared_tunnel_ha_connections < 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Cloudflare tunnel is DOWN (0 edge connections)"
+          description: cloudflared is running but has no active connections to Cloudflare's edge — the public site is unreachable.
+
   # ---------------------------------------------------------------------------
   # Container health (cadvisor)
   # ---------------------------------------------------------------------------
