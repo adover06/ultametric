@@ -48,11 +48,15 @@ services:
         query: max((time() - container_last_seen{container_label_com_docker_compose_service="pairdrop"}) < bool 120 or (time() - container_last_seen{name=~".*pairdrop.*"}) < bool 120) or on() vector(0)
       - name: Vaultwarden Container
         query: max((time() - container_last_seen{container_label_com_docker_compose_service="vaultwarden"}) < bool 120 or (time() - container_last_seen{name=~".*vaultwarden.*"}) < bool 120) or on() vector(0)
+      - name: Cloudflare Tunnel
+        query: (max(cloudflared_tunnel_ha_connections) >= bool 1) or on() vector(0)
 
   - name: Personal Portfolio Stack
     children:
       - name: Portfolio HTTP Reachable (blackbox)
         query: probe_success{instance="http://nginx:444"}
+      - name: Portfolio Public (via Cloudflare)
+        query: min(probe_success{tier="public"}) or on() vector(0)
       - name: Personal Portfolio Next.js Container
         query: max((time() - container_last_seen{container_label_com_docker_compose_service="nextjs"}) < bool 120 or (time() - container_last_seen{name=~".*personalportfolio-nextjs-1.*"}) < bool 120) or on() vector(0)
       - name: Personal Portfolio NGINX Container

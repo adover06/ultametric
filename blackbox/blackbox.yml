@@ -3,7 +3,11 @@ modules:
   http_2xx:
     prober: http
     http:
+      preferred_ip_protocol: ip4    # Docker often has no working IPv6 → force v4
       fail_if_not_ssl: false
+      headers:
+        # Look less like a bare bot so Cloudflare doesn't challenge basic rules.
+        User-Agent: "Mozilla/5.0 (compatible; blackbox-exporter health-check)"
 
   # Same, but skips TLS cert verification — for internal probes where the
   # endpoint serves a cert for the public domain, not its container name.
