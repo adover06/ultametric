@@ -112,6 +112,8 @@ services:
 networks:
   proxy:
     external: true
+  public:
+    external: true
 
 volumes:
   grafana_data:
