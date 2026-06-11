@@ -28,11 +28,11 @@ scrape_configs:
       module: [http_2xx]
     static_configs:
       - targets: ['http://nginx:444']             # internal: nginx + app behind it
-        labels: { tier: internal }
+        labels: { tier: internal, repo: PersonalPortfolio }
       - targets:                                  # public: full path through Cloudflare
           - 'https://andrewdover.com'
           - 'https://www.andrewdover.com'
-        labels: { tier: public }
+        labels: { tier: public, repo: PersonalPortfolio }
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
