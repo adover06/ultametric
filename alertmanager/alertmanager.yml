@@ -22,12 +22,12 @@ receivers:
       - url: http://github-receiver:9393/v1/receiver   # path matters!
         send_resolved: true
 
-inhibit_rules:
-  # Root-cause alerting: when the Cloudflare tunnel is down, it's the reason the
-  # public site is unreachable — so suppress the downstream public ServiceDown
-  # alerts and surface only "TunnelDown". One clean alert instead of a pile.
-  - source_matchers:
-      - alertname = "TunnelDown"
-    target_matchers:
-      - alertname = "ServiceDown"
-      - tier = "public"
+# inhibit_rules:
+#   # Root-cause alerting: when the Cloudflare tunnel is down, it's the reason the
+#   # public site is unreachable — so suppress the downstream public ServiceDown
+#   # alerts and surface only "TunnelDown". One clean alert instead of a pile.
+#   - source_matchers:
+#       - alertname = "TunnelDown"
+#     target_matchers:
+#       - alertname = "ServiceDown"
+#       - tier = "public"
